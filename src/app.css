@@ -455,7 +455,8 @@ button, input, select, textarea {
 
 .input-field:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -1px;
 }
 
 .input-field::file-selector-button {
@@ -463,9 +464,10 @@ button, input, select, textarea {
   color: var(--btn-filter-text);
   font-size: 14px;
   font-weight: 400;
-  border: 1px solid var(--btn-filter-border);
-  border-radius: 8px;
-  padding: 6px 12px;
+  border: 3px solid var(--btn-filter-border);
+  border-radius: 11px;
+  padding: 0px 14px;
+  height: 28px;
   margin-right: 12px;
   cursor: pointer;
   transition: background 0.15s;

@@ -258,10 +258,10 @@
   <header class="topbar">
     <div class="logo-group">
       <img class="logo-icon" src={iconUrl} alt="Logo" />
-      <span class="text-caption-large" style="color: var(--nav-text);">Wallpaper Maker</span>
+      <span class="text-micro" style="color: var(--nav-text);">Wallpaper Maker</span>
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
-      <span class="text-micro" style="color: rgba(255,255,255,0.6);">{formatTarget(activeTarget)}</span>
+      <span class="text-micro" style="color: var(--nav-text);">{formatTarget(activeTarget)}</span>
       <button
         type="button"
         class="theme-toggle"
@@ -277,7 +277,7 @@
   <div class="workspace-grid animate-fade-in">
     <section class="panel" aria-labelledby="input-title">
       <div class="panel-header">
-        <span class="text-micro color-tertiary" style="text-transform: uppercase; letter-spacing: 1px;">Source</span>
+        <span class="text-micro color-tertiary" style="text-transform: uppercase;">Source</span>
         <h2 id="input-title" class="text-h2 color-primary">입력</h2>
       </div>
 
@@ -433,7 +433,7 @@
     <!-- Result Panel -->
     <section class="panel" aria-labelledby="result-title">
       <div class="panel-header">
-        <span class="text-micro color-tertiary" style="text-transform: uppercase; letter-spacing: 1px;">Output</span>
+        <span class="text-micro color-tertiary" style="text-transform: uppercase;">Output</span>
         <h2 id="result-title" class="text-h2 color-primary">결과</h2>
       </div>
 
