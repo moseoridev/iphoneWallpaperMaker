@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
-const base = process.env.CF_PAGES ? '/' : '/iphoneWallpaperMaker/'
+const base = '/'
 
 export default defineConfig({
   base,

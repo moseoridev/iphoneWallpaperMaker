@@ -8,7 +8,7 @@
 - 블러 확장, 검은색, 단색 배경 선택
 - JPEG 기본 저장과 PNG 옵션
 - `HEIC/HEIF` 입력 지원
-- GitHub Pages 배포와 오프라인 재실행 대응
+- Cloudflare Pages 배포와 오프라인 재실행 대응
 
 ## 개발
 
