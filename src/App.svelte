@@ -20,6 +20,8 @@
   } from '$lib/wallpaper/geometry'
   import type { FillMode, ExportFormat, ProcessResult, TargetSize } from '$lib/wallpaper/types'
 
+  const iconUrl = `${import.meta.env.BASE_URL}icon.svg`
+
   let sourceFile = $state<File | null>(null)
   let screenshotFile = $state<File | null>(null)
   let sourcePreviewUrl = $state<string | null>(null)
@@ -205,26 +207,38 @@
   })
 </script>
 
-<main class="shell">
-  <section class="hero">
-    <p class="eyebrow">Offline PWA</p>
-    <h1>사진 비율은 그대로, 배경화면 크기만 정확하게 맞춥니다.</h1>
-    <p class="lede">
-      원본 사진 한 장과 목표 해상도를 알기 위한 스크린샷 한 장만 있으면 됩니다.
-      모든 처리는 이 기기 안에서만 이뤄지고, 설치 후에는 오프라인으로 다시 열 수 있습니다.
-    </p>
-    <div class="hero-meta">
-      <span>기본 배경: 블러 확장</span>
-      <span>저장 기본값: JPEG 92%</span>
-      <span>대상: iOS Safari, Android Chrome</span>
+<main class="workspace">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-mark" src={iconUrl} alt="" />
+      <div>
+        <p>Wallpaper Maker</p>
+        <span>Offline image tool</span>
+      </div>
     </div>
+
+    <div class="target-readout">
+      <span>Target</span>
+      <strong>{formatTarget(activeTarget)}</strong>
+    </div>
+  </header>
+
+  <section class="intro" aria-labelledby="workspace-title">
+    <div>
+      <p class="eyebrow">Private canvas</p>
+      <h1 id="workspace-title">사진 비율은 그대로, 화면 크기만 맞춥니다.</h1>
+    </div>
+    <p>
+      원본과 스크린샷을 넣으면 이 기기 안에서 배경화면을 생성합니다.
+    </p>
   </section>
 
   <div class="layout">
-    <section class="panel">
+    <section class="tool-panel" aria-labelledby="input-title">
       <div class="panel-header">
-        <h2>입력</h2>
-        <p>스크린샷을 넣으면 가로·세로 해상도가 자동으로 채워집니다.</p>
+        <p class="eyebrow">Source</p>
+        <h2 id="input-title">입력</h2>
+        <p>사진과 목표 해상도를 정하세요.</p>
       </div>
 
       <label class="field">
@@ -245,8 +259,13 @@
       {/if}
 
       {#if sourcePreviewUrl}
-        <div class="preview-card">
+        <div class="media-frame source-frame">
           <img src={sourcePreviewUrl} alt="선택한 원본 사진 미리보기" />
+        </div>
+      {:else}
+        <div class="drop-visual" aria-hidden="true">
+          <img src={iconUrl} alt="" />
+          <span>Source image</span>
         </div>
       {/if}
 
@@ -388,10 +407,11 @@
       </button>
     </section>
 
-    <section class="panel result-panel">
+    <section class="result-panel" aria-labelledby="result-title">
       <div class="panel-header">
-        <h2>결과</h2>
-        <p>원본 비율은 유지되고, 남는 공간만 레터박스로 채워집니다.</p>
+        <p class="eyebrow">Output</p>
+        <h2 id="result-title">결과</h2>
+        <p>남는 공간만 레터박스로 채워집니다.</p>
       </div>
 
       <div class="status-stack" aria-live="polite">
@@ -402,7 +422,7 @@
       </div>
 
       {#if result}
-        <div class="preview-card result-card">
+        <div class="media-frame result-card">
           <img src={result.previewUrl} alt="생성된 배경화면 미리보기" />
         </div>
 
@@ -413,18 +433,21 @@
         </div>
       {:else}
         <div class="empty-state">
+          <img src={iconUrl} alt="" />
           <p>아직 생성된 이미지가 없습니다.</p>
-          <p>원본 사진과 목표 해상도를 준비한 뒤 생성 버튼을 누르세요.</p>
+          <span>원본 사진과 목표 해상도를 준비한 뒤 생성하세요.</span>
         </div>
       {/if}
 
-      <button type="button" onclick={handleDownload} disabled={!canDownload}>다운로드</button>
-
-      <div class="hint-list">
-        <p>iOS Safari에서는 다운로드 후 사진 앱에 저장해 배경화면으로 지정하세요.</p>
-        <p>HEIC 변환이 실패하면 사진 앱이나 파일 앱에서 JPEG/PNG로 내보낸 뒤 다시 시도하세요.</p>
-        <p>설치 후에는 네트워크 없이도 앱을 다시 열 수 있습니다.</p>
-      </div>
+      <button class="download-action" type="button" onclick={handleDownload} disabled={!canDownload}>
+        다운로드
+      </button>
     </section>
+  </div>
+
+  <div class="hint-list">
+    <p>iOS Safari에서는 다운로드 후 사진 앱에 저장해 배경화면으로 지정하세요.</p>
+    <p>HEIC 변환이 실패하면 사진 앱이나 파일 앱에서 JPEG/PNG로 내보낸 뒤 다시 시도하세요.</p>
+    <p>설치 후에는 네트워크 없이도 앱을 다시 열 수 있습니다.</p>
   </div>
 </main>
