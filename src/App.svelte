@@ -22,6 +22,8 @@
 
   const iconUrl = `${import.meta.env.BASE_URL}icon.svg`
   const logoUrl = `${import.meta.env.BASE_URL}logo.svg`
+  const githubUserUrl = 'https://github.com/moseoridev'
+  const githubRepoUrl = 'https://github.com/moseoridev/iphoneWallpaperMaker'
 
   let sourceFile = $state<File | null>(null)
   let screenshotFile = $state<File | null>(null)
@@ -470,4 +472,13 @@
       </button>
     </section>
   </div>
+
+  <footer class="app-footer">
+    <span>made by</span>
+    <a href={githubUserUrl} target="_blank" rel="noopener noreferrer">moseoridev</a>
+    <span>with ❤️</span>
+    <a href={githubRepoUrl} target="_blank" rel="noopener noreferrer">
+      github.com/moseoridev/iphoneWallpaperMaker
+    </a>
+  </footer>
 </main>

@@ -584,7 +584,7 @@ input[type="color"].input-field::-moz-color-swatch {
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
-  padding: 24px 24px calc(80px + env(safe-area-inset-bottom));
+  padding: 24px;
 }
 
 @media (min-width: 900px) {
@@ -607,6 +607,31 @@ input[type="color"].input-field::-moz-color-swatch {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 8px;
+  padding: 0 24px calc(24px + env(safe-area-inset-bottom));
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: -0.12px;
+}
+
+.app-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--link);
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
 }
 
 /* --- Media Preview --- */

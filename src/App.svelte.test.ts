@@ -194,4 +194,16 @@ describe('App', () => {
       expect(screen.getByText('결과 이미지를 저장하지 못했습니다. 다시 시도하세요.')).toBeInTheDocument()
     })
   })
+
+  it('links to the author profile and GitHub repo from the footer', () => {
+    render(App)
+
+    expect(screen.getByRole('link', { name: 'moseoridev' })).toHaveAttribute(
+      'href',
+      'https://github.com/moseoridev',
+    )
+    expect(
+      screen.getByRole('link', { name: 'github.com/moseoridev/iphoneWallpaperMaker' }),
+    ).toHaveAttribute('href', 'https://github.com/moseoridev/iphoneWallpaperMaker')
+  })
 })
