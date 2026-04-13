@@ -217,7 +217,7 @@
       </div>
     </div>
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <span class="text-micro color-quaternary text-uppercase" style="letter-spacing: 1px;">Target</span>
+      <span class="text-micro color-tertiary text-uppercase" style="letter-spacing: 1px;">Target</span>
       <strong class="text-label color-primary">{formatTarget(activeTarget)}</strong>
     </div>
   </header>
@@ -227,7 +227,7 @@
   <div class="workspace-grid animate-fade-in">
     <section class="panel surface-level-3" aria-labelledby="input-title">
       <div class="panel-header">
-        <span class="text-micro color-quaternary text-uppercase" style="letter-spacing: 1px;">Source</span>
+        <span class="text-micro color-tertiary text-uppercase" style="letter-spacing: 1px;">Source</span>
         <h2 id="input-title" class="text-h2 color-primary">입력</h2>
       </div>
 
@@ -255,7 +255,7 @@
         {:else}
           <div class="empty-state-box">
             <img src={iconUrl} class="empty-state-icon" alt="" />
-            <span class="text-label color-quaternary">Source image</span>
+            <span class="text-label color-tertiary">Source image</span>
           </div>
         {/if}
       </div>
@@ -383,7 +383,7 @@
     <!-- Result Panel -->
     <section class="panel surface-level-2" aria-labelledby="result-title">
       <div class="panel-header">
-        <span class="text-micro color-quaternary text-uppercase" style="letter-spacing: 1px;">Output</span>
+        <span class="text-micro color-tertiary text-uppercase" style="letter-spacing: 1px;">Output</span>
         <h2 id="result-title" class="text-h2 color-primary">결과</h2>
       </div>
 
@@ -401,7 +401,7 @@
           <div class="empty-state-box" style="flex: 1;">
             <img src={iconUrl} class="empty-state-icon" alt="" />
             <p class="text-body-medium color-secondary" style="margin-top: 16px;">아직 생성된 이미지가 없습니다.</p>
-            <span class="text-caption color-quaternary">원본 사진과 목표 해상도를 준비한 뒤 생성하세요.</span>
+            <span class="text-caption color-tertiary">원본 사진과 목표 해상도를 준비한 뒤 생성하세요.</span>
           </div>
         {/if}
       </div>

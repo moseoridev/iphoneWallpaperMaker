@@ -52,6 +52,7 @@
     "vitest": "^4.1.4"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "@kayahr/stackblur": "^2.0.1",
     "heic-to": "^1.4.2",
     "pica": "^9.0.1"

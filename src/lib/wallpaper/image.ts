@@ -1,6 +1,3 @@
-import { blurImageData } from '@kayahr/stackblur'
-import picaFactory from 'pica'
-
 import type { DrawRect } from './geometry'
 import { assertSupportedTargetSize, getContainRect } from './geometry'
 import type {
@@ -11,7 +8,13 @@ import type {
   TargetSize,
 } from './types'
 
-let picaInstance: ReturnType<typeof picaFactory> | null = null
+type PicaModule = typeof import('pica')
+type StackblurModule = typeof import('@kayahr/stackblur')
+type PicaInstance = ReturnType<PicaModule['default']>
+type BlurImageData = StackblurModule['blurImageData']
+
+let picaInstancePromise: Promise<PicaInstance> | null = null
+let stackblurModulePromise: Promise<StackblurModule> | null = null
 
 interface RgbColor {
   r: number
@@ -21,9 +24,14 @@ interface RgbColor {
 
 type LetterboxAxis = 'horizontal' | 'vertical' | 'none'
 
-function getPica() {
-  picaInstance ??= picaFactory()
-  return picaInstance
+async function getPica() {
+  picaInstancePromise ??= import('pica').then(({ default: picaFactory }) => picaFactory())
+  return picaInstancePromise
+}
+
+async function getStackblur() {
+  stackblurModulePromise ??= import('@kayahr/stackblur')
+  return stackblurModulePromise
 }
 
 function createCanvas(width: number, height: number) {
@@ -204,6 +212,7 @@ function blurRegion(
   width: number,
   height: number,
   radius: number,
+  blurImageData: BlurImageData,
 ) {
   if (width <= 0 || height <= 0) {
     return
@@ -219,6 +228,7 @@ function renderVerticalEdgeBlend(
   containRect: DrawRect,
   targetSize: TargetSize,
   context: CanvasRenderingContext2D,
+  blurImageData: BlurImageData,
 ) {
   const topGap = containRect.y
   const bottomGap = targetSize.height - containRect.y - containRect.height
@@ -261,7 +271,7 @@ function renderVerticalEdgeBlend(
     topGradient.addColorStop(1, toRgb(mixColors(topOuterColor, topInnerColor, 0.84)))
     context.fillStyle = topGradient
     context.fillRect(0, 0, targetSize.width, topGap)
-    blurRegion(context, 0, 0, targetSize.width, topGap, getEdgeBlurRadius(topGap))
+    blurRegion(context, 0, 0, targetSize.width, topGap, getEdgeBlurRadius(topGap), blurImageData)
   }
 
   if (bottomGap > 0) {
@@ -283,6 +293,7 @@ function renderVerticalEdgeBlend(
       targetSize.width,
       bottomGap,
       getEdgeBlurRadius(bottomGap),
+      blurImageData,
     )
   }
 }
@@ -292,6 +303,7 @@ function renderHorizontalEdgeBlend(
   containRect: DrawRect,
   targetSize: TargetSize,
   context: CanvasRenderingContext2D,
+  blurImageData: BlurImageData,
 ) {
   const leftGap = containRect.x
   const rightGap = targetSize.width - containRect.x - containRect.width
@@ -334,7 +346,7 @@ function renderHorizontalEdgeBlend(
     leftGradient.addColorStop(1, toRgb(mixColors(leftOuterColor, leftInnerColor, 0.84)))
     context.fillStyle = leftGradient
     context.fillRect(0, 0, leftGap, targetSize.height)
-    blurRegion(context, 0, 0, leftGap, targetSize.height, getEdgeBlurRadius(leftGap))
+    blurRegion(context, 0, 0, leftGap, targetSize.height, getEdgeBlurRadius(leftGap), blurImageData)
   }
 
   if (rightGap > 0) {
@@ -356,6 +368,7 @@ function renderHorizontalEdgeBlend(
       rightGap,
       targetSize.height,
       getEdgeBlurRadius(rightGap),
+      blurImageData,
     )
   }
 }
@@ -365,16 +378,17 @@ function renderBlurBackground(
   containRect: DrawRect,
   targetSize: TargetSize,
   context: CanvasRenderingContext2D,
+  blurImageData: BlurImageData,
 ) {
   const axis = getLetterboxAxis(containRect, targetSize)
 
   if (axis === 'vertical') {
-    renderVerticalEdgeBlend(sourceCanvas, containRect, targetSize, context)
+    renderVerticalEdgeBlend(sourceCanvas, containRect, targetSize, context, blurImageData)
     return
   }
 
   if (axis === 'horizontal') {
-    renderHorizontalEdgeBlend(sourceCanvas, containRect, targetSize, context)
+    renderHorizontalEdgeBlend(sourceCanvas, containRect, targetSize, context, blurImageData)
     return
   }
 
@@ -434,10 +448,12 @@ export async function renderWallpaper(
   const context = getContext(canvas)
   const containRect = getContainRect(source, targetSize)
   const foregroundCanvas = createCanvas(containRect.width, containRect.height)
-  await getPica().resize(source.image, foregroundCanvas)
+  const pica = await getPica()
+  await pica.resize(source.image, foregroundCanvas)
 
   if (options.fillMode === 'blur') {
-    renderBlurBackground(foregroundCanvas, containRect, targetSize, context)
+    const { blurImageData } = await getStackblur()
+    renderBlurBackground(foregroundCanvas, containRect, targetSize, context, blurImageData)
   } else {
     context.fillStyle = options.fillMode === 'color' ? options.fillColor ?? '#161616' : '#000000'
     context.fillRect(0, 0, targetSize.width, targetSize.height)

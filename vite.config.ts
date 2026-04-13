@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
-const base = '/iphoneWallpaperMaker/'
+const base = process.env.CF_PAGES ? '/' : '/iphoneWallpaperMaker/'
 
 export default defineConfig({
   base,
@@ -18,6 +18,7 @@ export default defineConfig({
     svelteTesting(),
     VitePWA({
       base,
+      injectRegister: 'script-defer',
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
@@ -30,8 +31,8 @@ export default defineConfig({
         start_url: base,
         scope: base,
         display: 'standalone',
-        background_color: '#f2ebde',
-        theme_color: '#1f342d',
+        background_color: '#08090a',
+        theme_color: '#08090a',
         icons: [
           {
             src: 'pwa-192x192.png',
