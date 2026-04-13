@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-  import { onDestroy } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
 
   import { downloadResult } from '$lib/wallpaper/download'
   import {
@@ -37,6 +37,33 @@
   let errorMessage = $state('')
   let statusMessage = $state('원본 사진을 넣고 목표 해상도를 정하면 바로 생성할 수 있습니다.')
   let isProcessing = $state(false)
+
+  type Theme = 'system' | 'light' | 'dark'
+  let theme = $state<Theme>('system')
+
+
+  function applyTheme(t: Theme) {
+    const root = document.documentElement
+    if (t === 'system') {
+      root.removeAttribute('data-theme')
+    } else {
+      root.setAttribute('data-theme', t)
+    }
+    localStorage.setItem('theme', t)
+  }
+
+  function cycleTheme() {
+    const order: Theme[] = ['system', 'light', 'dark']
+    const next = order[(order.indexOf(theme) + 1) % order.length]
+    theme = next
+    applyTheme(theme)
+  }
+
+  function getThemeIcon(t: Theme): string {
+    if (t === 'system') return '🖥️'
+    if (t === 'light') return '☀️'
+    return '🌙'
+  }
 
   let hasManualTargetInput = $derived(hasPartialManualTarget(manualWidth, manualHeight))
   let manualTarget = $derived(parseManualTargetSize(manualWidth, manualHeight))
@@ -194,6 +221,26 @@
     updateStatus(`${result.fileName} 다운로드를 시작했습니다.`)
   }
 
+  onMount(() => {
+    const saved = localStorage.getItem('theme') as Theme | null
+    if (saved && ['system', 'light', 'dark'].includes(saved)) {
+      theme = saved
+    }
+    applyTheme(theme)
+
+    if (typeof window.matchMedia !== 'function') return
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = () => {
+      if (theme === 'system') {
+        applyTheme('system')
+      }
+    }
+    mq.addEventListener('change', handler)
+
+    return () => mq.removeEventListener('change', handler)
+  })
+
   onDestroy(() => {
     if (sourcePreviewUrl) {
       URL.revokeObjectURL(sourcePreviewUrl)
@@ -211,27 +258,30 @@
   <header class="topbar">
     <div class="logo-group">
       <img class="logo-icon" src={iconUrl} alt="Logo" />
-      <div>
-        <p class="text-caption-large color-primary">Wallpaper Maker</p>
-        <span class="text-caption color-tertiary">Offline image tool</span>
-      </div>
+      <span class="text-caption-large" style="color: var(--nav-text);">Wallpaper Maker</span>
     </div>
-    <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <span class="text-micro color-tertiary text-uppercase" style="letter-spacing: 1px;">Target</span>
-      <strong class="text-label color-primary">{formatTarget(activeTarget)}</strong>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="text-micro" style="color: rgba(255,255,255,0.6);">{formatTarget(activeTarget)}</span>
+      <button
+        type="button"
+        class="theme-toggle"
+        onclick={cycleTheme}
+        aria-label="테마 전환"
+        title={theme === 'system' ? '시스템' : theme === 'light' ? '라이트' : '다크'}
+      >
+        {getThemeIcon(theme)}
+      </button>
     </div>
   </header>
 
-
-
   <div class="workspace-grid animate-fade-in">
-    <section class="panel surface-level-3" aria-labelledby="input-title">
+    <section class="panel" aria-labelledby="input-title">
       <div class="panel-header">
-        <span class="text-micro color-tertiary text-uppercase" style="letter-spacing: 1px;">Source</span>
+        <span class="text-micro color-tertiary" style="text-transform: uppercase; letter-spacing: 1px;">Source</span>
         <h2 id="input-title" class="text-h2 color-primary">입력</h2>
       </div>
 
-      <div class="input-group" style="margin-top: 16px;">
+      <div class="input-group">
         <span class="input-label">원본 사진</span>
         <input
           type="file"
@@ -249,18 +299,18 @@
         </div>
       {/if}
 
-      <div class="media-preview-container surface-inset">
+      <div class="media-preview-container">
         {#if sourcePreviewUrl}
           <img src={sourcePreviewUrl} alt="선택한 원본 사진 미리보기" />
         {:else}
           <div class="empty-state-box">
             <img src={iconUrl} class="empty-state-icon" alt="" />
-            <span class="text-label color-tertiary">Source image</span>
+            <span class="text-small color-tertiary">Source image</span>
           </div>
         {/if}
       </div>
 
-      <div class="input-group" style="margin-top: 16px;">
+      <div class="input-group">
         <span class="input-label">해상도 확인용 스크린샷</span>
         <input
           type="file"
@@ -278,7 +328,7 @@
         </div>
       {/if}
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div class="input-group">
           <span class="input-label">가로 해상도</span>
           <input
@@ -307,7 +357,7 @@
         </div>
       </div>
 
-      <div style="margin-bottom: 8px;">
+      <div>
         <span class="text-caption color-primary"><strong>현재 목표:</strong> {formatTarget(activeTarget)}</span>
       </div>
 
@@ -343,7 +393,7 @@
         </div>
       {/if}
 
-      <div class="input-group" style="margin-top: 8px;">
+      <div class="input-group">
         <span class="input-label">출력 포맷</span>
         <div class="segmented-control">
           <label>
@@ -375,50 +425,48 @@
         </div>
       {/if}
 
-      <button class="btn btn-primary" style="margin-top: 16px;" type="button" onclick={generateWallpaper} disabled={!canGenerate}>
+      <button class="btn btn-primary" style="width: 100%;" type="button" onclick={generateWallpaper} disabled={!canGenerate}>
         {isProcessing ? '생성 중…' : '생성'}
       </button>
     </section>
 
     <!-- Result Panel -->
-    <section class="panel surface-level-2" aria-labelledby="result-title">
+    <section class="panel" aria-labelledby="result-title">
       <div class="panel-header">
-        <span class="text-micro color-tertiary text-uppercase" style="letter-spacing: 1px;">Output</span>
+        <span class="text-micro color-tertiary" style="text-transform: uppercase; letter-spacing: 1px;">Output</span>
         <h2 id="result-title" class="text-h2 color-primary">결과</h2>
       </div>
 
-      <div class="status-stack" aria-live="polite" style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+      <div class="status-stack" aria-live="polite" style="display: flex; flex-direction: column; gap: 8px;">
         <div class="status-pill status-normal">{statusMessage}</div>
         {#if errorMessage}
           <div class="status-pill status-error">{errorMessage}</div>
         {/if}
       </div>
 
-      <div class="media-preview-container surface-inset" style="flex: 1; min-height: 480px; display: flex; flex-direction: column;">
+      <div class="media-preview-container" style="flex: 1; min-height: 480px; display: flex; flex-direction: column;">
         {#if result}
           <img src={result.previewUrl} alt="생성된 배경화면 미리보기" style="margin: auto;" />
         {:else}
           <div class="empty-state-box" style="flex: 1;">
             <img src={iconUrl} class="empty-state-icon" alt="" />
-            <p class="text-body-medium color-secondary" style="margin-top: 16px;">아직 생성된 이미지가 없습니다.</p>
+            <p class="text-body color-secondary" style="margin-top: 12px;">아직 생성된 이미지가 없습니다.</p>
             <span class="text-caption color-tertiary">원본 사진과 목표 해상도를 준비한 뒤 생성하세요.</span>
           </div>
         {/if}
       </div>
 
       {#if result}
-        <div style="display: flex; gap: 12px; align-items: baseline; justify-content: center; margin-top: 16px;">
+        <div style="display: flex; gap: 12px; align-items: baseline; justify-content: center;">
           <strong class="text-label color-primary">{result.width} × {result.height}px</strong>
           <span class="pill-neutral">{result.mimeType === 'image/jpeg' ? 'JPEG' : 'PNG'}</span>
           <span class="pill-neutral">{formatBytes(result.blob.size)}</span>
         </div>
       {/if}
 
-      <button class="btn btn-ghost" style="margin-top: 16px;" type="button" onclick={handleDownload} disabled={!canDownload}>
+      <button class="btn btn-ghost" style="width: 100%;" type="button" onclick={handleDownload} disabled={!canDownload}>
         다운로드
       </button>
     </section>
   </div>
-
-
 </main>
