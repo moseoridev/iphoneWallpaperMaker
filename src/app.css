@@ -358,7 +358,7 @@ button, input, select, textarea {
 
 .btn-primary:active:not(:disabled) {
   background: #ededf2;
-  color: var(--text-primary);
+  color: #1d1d1f;
 }
 
 .btn-ghost {
@@ -636,7 +636,7 @@ button, input, select, textarea {
 .empty-state-icon {
   width: 40px;
   height: 40px;
-  opacity: 0.3;
+  opacity: 0.48;
 }
 
 /* --- Status Notifications --- */
@@ -719,7 +719,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.32);
 }
 
 .theme-toggle:focus-visible {
