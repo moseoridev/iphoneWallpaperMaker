@@ -419,18 +419,6 @@ button, input, select, textarea {
   line-height: 1.33;
 }
 
-.pill-success {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #34c759;
-  color: #ffffff;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 10px;
-  font-weight: 600;
-}
 
 /* --- Forms & Inputs --- */
 .input-group {
@@ -569,9 +557,9 @@ button, input, select, textarea {
 }
 
 .logo-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
+  width: 17px;
+  height: 48px;
+  object-fit: contain;
   filter: brightness(10);
 }
 
