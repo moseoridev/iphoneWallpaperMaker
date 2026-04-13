@@ -68,9 +68,9 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg-primary: #000000;
-    --bg-secondary: #1c1c1e;
-    --bg-surface: #1c1c1e;
-    --bg-surface-dark: #2c2c2e;
+    --bg-secondary: #262628;
+    --bg-surface: #262628;
+    --bg-surface-dark: #2a2a2d;
 
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.8);
@@ -84,7 +84,7 @@
     --btn-filter-text: rgba(255, 255, 255, 0.8);
     --btn-filter-border: rgba(255, 255, 255, 0.06);
 
-    --input-bg: #1c1c1e;
+    --input-bg: #262628;
     --input-border: rgba(255, 255, 255, 0.1);
     --input-text: #ffffff;
 
@@ -105,9 +105,9 @@
 
 :root[data-theme="dark"] {
   --bg-primary: #000000;
-  --bg-secondary: #1c1c1e;
-  --bg-surface: #1c1c1e;
-  --bg-surface-dark: #2c2c2e;
+  --bg-secondary: #262628;
+  --bg-surface: #262628;
+  --bg-surface-dark: #2a2a2d;
 
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.8);
@@ -121,7 +121,7 @@
   --btn-filter-text: rgba(255, 255, 255, 0.8);
   --btn-filter-border: rgba(255, 255, 255, 0.06);
 
-  --input-bg: #1c1c1e;
+  --input-bg: #262628;
   --input-border: rgba(255, 255, 255, 0.1);
   --input-text: #ffffff;
 
@@ -326,6 +326,7 @@ button, input, select, textarea {
   font-family: var(--font-text);
   font-size: 17px;
   font-weight: 400;
+  line-height: 2.41;
   text-decoration: none;
   border: 1px solid transparent;
 }
@@ -373,8 +374,8 @@ button, input, select, textarea {
   color: var(--text-secondary);
   border: none;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -698,8 +699,8 @@ input[type="range"]::-moz-range-thumb {
   border: none;
   color: var(--nav-text);
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
