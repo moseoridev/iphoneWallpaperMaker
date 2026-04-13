@@ -147,6 +147,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-text);
@@ -474,6 +475,21 @@ button, input, select, textarea {
   filter: brightness(0.96);
 }
 
+/* --- Color Input Shadow DOM (WebKit/Moz Polish) --- */
+input[type="color"].input-field::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"].input-field::-webkit-color-swatch {
+  border: none;
+  border-radius: 8px; /* Inner radius matching 11px outer - 2px padding */
+}
+
+input[type="color"].input-field::-moz-color-swatch {
+  border: none;
+  border-radius: 8px;
+}
+
 /* --- Segmented Control --- */
 .segmented-control {
   display: flex;
@@ -568,7 +584,7 @@ button, input, select, textarea {
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
-  padding: 24px 24px 80px;
+  padding: 24px 24px calc(80px + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 900px) {
