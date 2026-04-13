@@ -72,6 +72,13 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 You are on macOS and zsh.
 You should always use pnpm instead of npm.
 
+### Design and quality gates
+
+- Strictly follow `DESIGN.md` for all UI and styling changes.
+- Before changing UI or styles, read `DESIGN.md` and state how the change will satisfy it.
+- Treat Lighthouse desktop and mobile scores of 100 as required success criteria for UI-facing changes.
+- Do not consider UI-facing work complete until Lighthouse desktop and mobile both pass at 100, or until you clearly report why that verification could not be completed.
+
 ### Git instructions
 
 - Use git actively, but safely.
