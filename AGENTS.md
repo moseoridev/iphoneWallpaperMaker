@@ -74,14 +74,138 @@ You should always use pnpm instead of npm.
 
 ### Git instructions
 
-- Git is safety-critical. Read first, mutate second.
-- Before making changes, check repo state with the smallest useful read-only command, usually `git status --short`.
-- Never overwrite, discard, or clean changes you did not make.
-- Do not modify, stage, or revert unrelated files.
-- Do not create branches, commits, tags, or pull requests unless the user asks.
-- Do not run destructive commands unless the user explicitly asks for that exact outcome.
+- Use git actively, but safely.
+- Start by understanding the repo state before making changes.
+- Prefer small, reviewable, logically grouped commits.
+- Preserve user work. Never overwrite or discard changes you did not make.
 
-Destructive commands include:
+#### Repo awareness
+
+Before changing files, inspect the current state with the smallest useful commands, usually:
+
+- `git status --short`
+- `git branch --show-current`
+- `git diff --stat` when needed
+
+If the worktree already contains unrelated changes:
+
+- do not reset, discard, or silently absorb them
+- avoid touching those files
+- isolate your work as much as possible
+
+#### Branch strategy
+
+Use judgment instead of a one-size-fits-all rule.
+
+Stay on the current branch when:
+
+- the task is small
+- the user is clearly working on the current branch
+- the user asked for a direct edit
+
+Create a new branch when it helps isolate work, especially when:
+
+- the task is non-trivial
+- the change is risky or experimental
+- multiple files or steps are involved
+- the user asked for a commit-ready implementation
+- you should avoid committing directly to `main`, `master`, or another protected/default branch
+
+Branch naming:
+
+- use short, descriptive names
+- prefer prefixes like `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `chore/`
+
+Examples:
+
+- `fix/login-race-condition`
+- `feat/add-bulk-export`
+- `docs/update-local-setup`
+
+Do not create extra branches for trivial one-file edits unless isolation clearly helps.
+
+#### Commit strategy
+
+Commit intentionally, not mechanically.
+
+Create a commit when:
+
+- the requested change is complete
+- the relevant checks have passed, or you clearly state what was not verified
+- the diff forms one logical unit
+
+Split into multiple commits when that improves reviewability, such as:
+
+- refactor first, behavior change second
+- production code and tests as separate logical steps when helpful
+- unrelated fixes separated cleanly
+
+Avoid commits that mix:
+
+- requested work and drive-by cleanup
+- formatting-only noise and real behavior changes
+- dependency churn and feature work unless necessary
+
+Do not commit broken intermediate state unless the user explicitly wants a WIP snapshot.
+
+#### Staging rules
+
+- Stage only files related to the task.
+- Review the staged diff before committing.
+- Do not stage unrelated modifications.
+- Do not update lockfiles unless dependency changes were actually required.
+- Do not commit secrets, local config, editor noise, or accidental generated artifacts.
+
+Useful checks before commit:
+
+- `git diff --staged`
+- `git diff --stat`
+- relevant tests, linters, or type checks for the scope of the change
+
+#### Commit message convention
+
+Follow Conventional Commits.
+
+Format:
+
+- `<type>(<scope>): <description>`
+- scope is optional
+
+Rules:
+
+- use lowercase type
+- use imperative mood
+- keep the description concise and specific
+- describe what changed, not why in vague terms
+- one commit should map to one logical change
+
+Common types:
+
+- `feat`
+- `fix`
+- `refactor`
+- `docs`
+- `test`
+- `chore`
+- `build`
+- `ci`
+- `perf`
+- `revert`
+
+Examples:
+
+- `feat(auth): add magic link login`
+- `fix(api): handle empty response body`
+- `refactor(parser): simplify token flow`
+- `docs(readme): clarify pnpm setup`
+- `test(cache): cover ttl expiry`
+- `chore(ci): update pnpm cache config`
+
+#### Safety rules
+
+Never run destructive git commands unless the user explicitly asked for that exact outcome.
+
+This includes:
 
 - `git reset --hard`
 - `git checkout -- <path>`
@@ -94,45 +218,19 @@ Destructive commands include:
 - `git rebase`
 - force-push or any history rewrite
 
-When asked to commit:
+Do not push unless the user asked for it.
 
-- Review the diff first.
-- Stage only task-related files.
-- Keep the commit scoped to one logical change.
-- Follow Conventional Commits.
+#### Pull request mindset
 
-Commit message format:
+Even when no PR is being opened, work as if someone else will review the diff.
 
-- `<type>(<scope>): <summary>`
-- scope is optional
+That means:
 
-Examples:
-
-- `feat(auth): add magic link login`
-- `fix(api): handle empty response`
-- `docs(readme): clarify setup steps`
-- `refactor(parser): simplify token flow`
-- `test(cache): cover ttl expiry`
-- `chore(ci): update pnpm version`
-
-Allowed types:
-
-- `feat`
-- `fix`
-- `docs`
-- `refactor`
-- `test`
-- `chore`
-- `build`
-- `ci`
-- `perf`
-- `revert`
-
-Commit message rules:
-
-- Use imperative mood.
-- Keep it concise and specific.
-- Do not mix unrelated changes into one commit.
+- keep changes minimal
+- keep commits readable
+- verify the important paths
+- leave a clean history
+- make each commit easy to understand in isolation
 
 ### MCP instructions
 
@@ -141,8 +239,15 @@ Commit message rules:
 - Add or remove subsections as MCPs change.
 - Do not rewrite or summarize an MCP block unless explicitly asked.
 
-```markdown
-# Svelte MCP
+#### MCP template
+
+```md
+#### <MCP name>
+
+<paste MCP instructions here verbatim>
+```
+
+#### Svelte MCP
 
 You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
 
@@ -167,4 +272,3 @@ You MUST use this tool whenever writing Svelte code before sending it to the use
 
 Generates a Svelte Playground link with the provided code.
 After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
-```
