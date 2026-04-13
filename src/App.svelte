@@ -115,11 +115,8 @@
       }
 
       detectedTarget = screenshotTarget
-
-      if (manualWidth === undefined && manualHeight === undefined) {
-        manualWidth = detectedTarget.width
-        manualHeight = detectedTarget.height
-      }
+      manualWidth = detectedTarget.width
+      manualHeight = detectedTarget.height
 
       updateStatus(`스크린샷에서 ${formatTarget(detectedTarget)}를 읽었습니다.`)
     } catch (error) {

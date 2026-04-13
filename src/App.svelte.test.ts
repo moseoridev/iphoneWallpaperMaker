@@ -70,6 +70,56 @@ describe('App', () => {
     })
   })
 
+  it('updates auto-filled manual resolution when the screenshot is replaced', async () => {
+    readImageSize
+      .mockResolvedValueOnce({ width: 1170, height: 2532 })
+      .mockResolvedValueOnce({ width: 1290, height: 2796 })
+
+    render(App)
+
+    const screenshotInput = screen.getByLabelText('해상도 확인용 스크린샷')
+    await fireEvent.change(screenshotInput, {
+      target: {
+        files: [new File(['screen-1'], 'screen-1.png', { type: 'image/png' })],
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('가로 해상도')).toHaveValue(1170)
+      expect(screen.getByLabelText('세로 해상도')).toHaveValue(2532)
+    })
+
+    await fireEvent.change(screenshotInput, {
+      target: {
+        files: [new File(['screen-2'], 'screen-2.png', { type: 'image/png' })],
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('가로 해상도')).toHaveValue(1290)
+      expect(screen.getByLabelText('세로 해상도')).toHaveValue(2796)
+    })
+  })
+
+  it('replaces manually edited resolution when a new screenshot is selected', async () => {
+    readImageSize.mockResolvedValueOnce({ width: 1290, height: 2796 })
+    render(App)
+
+    await fireEvent.input(screen.getByLabelText('가로 해상도'), { target: { value: '1170' } })
+    await fireEvent.input(screen.getByLabelText('세로 해상도'), { target: { value: '2532' } })
+
+    await fireEvent.change(screen.getByLabelText('해상도 확인용 스크린샷'), {
+      target: {
+        files: [new File(['screen'], 'screen.png', { type: 'image/png' })],
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('가로 해상도')).toHaveValue(1290)
+      expect(screen.getByLabelText('세로 해상도')).toHaveValue(2796)
+    })
+  })
+
   it('allows generation with manual resolution only', async () => {
     render(App)
 
