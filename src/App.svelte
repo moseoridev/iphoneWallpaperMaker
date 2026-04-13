@@ -260,7 +260,7 @@
       <img class="logo-icon" src={iconUrl} alt="Logo" />
       <span class="text-micro" style="color: var(--nav-text);">Wallpaper Maker</span>
     </div>
-    <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 11px;">
       <span class="text-micro" style="color: var(--nav-text);">{formatTarget(activeTarget)}</span>
       <button
         type="button"
@@ -328,7 +328,7 @@
         </div>
       {/if}
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
         <div class="input-group">
           <span class="input-label">가로 해상도</span>
           <input
@@ -450,14 +450,14 @@
         {:else}
           <div class="empty-state-box" style="flex: 1;">
             <img src={iconUrl} class="empty-state-icon" alt="" />
-            <p class="text-body color-secondary" style="margin-top: 12px;">아직 생성된 이미지가 없습니다.</p>
+            <p class="text-body color-secondary" style="margin-top: 11px;">아직 생성된 이미지가 없습니다.</p>
             <span class="text-caption color-tertiary">원본 사진과 목표 해상도를 준비한 뒤 생성하세요.</span>
           </div>
         {/if}
       </div>
 
       {#if result}
-        <div style="display: flex; gap: 12px; align-items: baseline; justify-content: center;">
+        <div style="display: flex; gap: 11px; align-items: baseline; justify-content: center;">
           <strong class="text-label color-primary">{result.width} × {result.height}px</strong>
           <span class="pill-neutral">{result.mimeType === 'image/jpeg' ? 'JPEG' : 'PNG'}</span>
           <span class="pill-neutral">{formatBytes(result.blob.size)}</span>

@@ -474,7 +474,7 @@ button, input, select, textarea {
   border-radius: 11px;
   padding: 0px 14px;
   height: 28px;
-  margin-right: 12px;
+  margin-right: 11px;
   cursor: pointer;
   transition: background 0.15s;
   letter-spacing: -0.224px;
@@ -509,7 +509,7 @@ button, input, select, textarea {
 .segmented-control span {
   flex: 1;
   text-align: center;
-  padding: 6px 12px;
+  padding: 6px 11px;
   font-size: 14px;
   font-weight: 400;
   color: var(--seg-text);
@@ -625,7 +625,7 @@ button, input, select, textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 11px;
   padding: 48px 24px;
   min-height: 200px;
 }
@@ -638,7 +638,7 @@ button, input, select, textarea {
 
 /* --- Status Notifications --- */
 .status-pill {
-  padding: 10px 16px;
+  padding: 10px 15px;
   border-radius: 8px;
   font-size: 14px;
   letter-spacing: -0.224px;
