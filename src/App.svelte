@@ -207,90 +207,83 @@
   })
 </script>
 
-<main class="workspace">
+<main class="layout-container">
   <header class="topbar">
-    <div class="brand">
-      <img class="brand-mark" src={iconUrl} alt="" />
+    <div class="logo-group">
+      <img class="logo-icon" src={iconUrl} alt="Logo" />
       <div>
-        <p>Wallpaper Maker</p>
-        <span>Offline image tool</span>
+        <p class="text-caption-large color-primary">Wallpaper Maker</p>
+        <span class="text-caption color-tertiary">Offline image tool</span>
       </div>
     </div>
-
-    <div class="target-readout">
-      <span>Target</span>
-      <strong>{formatTarget(activeTarget)}</strong>
+    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+      <span class="text-micro color-quaternary text-uppercase" style="letter-spacing: 1px;">Target</span>
+      <strong class="text-label color-primary">{formatTarget(activeTarget)}</strong>
     </div>
   </header>
 
-  <section class="intro" aria-labelledby="workspace-title">
-    <div>
-      <p class="eyebrow">Private canvas</p>
-      <h1 id="workspace-title">사진 비율은 그대로, 화면 크기만 맞춥니다.</h1>
-    </div>
-    <p>
-      원본과 스크린샷을 넣으면 이 기기 안에서 배경화면을 생성합니다.
-    </p>
-  </section>
 
-  <div class="layout">
-    <section class="tool-panel" aria-labelledby="input-title">
+
+  <div class="workspace-grid animate-fade-in">
+    <section class="panel surface-level-3" aria-labelledby="input-title">
       <div class="panel-header">
-        <p class="eyebrow">Source</p>
-        <h2 id="input-title">입력</h2>
-        <p>사진과 목표 해상도를 정하세요.</p>
+        <span class="text-micro color-quaternary text-uppercase" style="letter-spacing: 1px;">Source</span>
+        <h2 id="input-title" class="text-h2 color-primary">입력</h2>
       </div>
 
-      <label class="field">
-        <span>원본 사진</span>
+      <div class="input-group" style="margin-top: 16px;">
+        <span class="input-label">원본 사진</span>
         <input
           type="file"
+          class="input-field"
           accept="image/*,.heic,.heif"
           aria-label="원본 사진"
           onchange={handleSourceChange}
         />
-      </label>
+      </div>
 
       {#if sourceFile}
-        <div class="file-meta">
-          <strong>{sourceFile.name}</strong>
-          <span>{formatBytes(sourceFile.size)}</span>
+        <div style="display: flex; gap: 8px; align-items: baseline;">
+          <strong class="text-caption-large color-primary">{sourceFile.name}</strong>
+          <span class="text-caption color-tertiary">{formatBytes(sourceFile.size)}</span>
         </div>
       {/if}
 
-      {#if sourcePreviewUrl}
-        <div class="media-frame source-frame">
+      <div class="media-preview-container surface-inset">
+        {#if sourcePreviewUrl}
           <img src={sourcePreviewUrl} alt="선택한 원본 사진 미리보기" />
-        </div>
-      {:else}
-        <div class="drop-visual" aria-hidden="true">
-          <img src={iconUrl} alt="" />
-          <span>Source image</span>
-        </div>
-      {/if}
+        {:else}
+          <div class="empty-state-box">
+            <img src={iconUrl} class="empty-state-icon" alt="" />
+            <span class="text-label color-quaternary">Source image</span>
+          </div>
+        {/if}
+      </div>
 
-      <label class="field">
-        <span>해상도 확인용 스크린샷</span>
+      <div class="input-group" style="margin-top: 16px;">
+        <span class="input-label">해상도 확인용 스크린샷</span>
         <input
           type="file"
+          class="input-field"
           accept="image/*"
           aria-label="해상도 확인용 스크린샷"
           onchange={handleScreenshotChange}
         />
-      </label>
+      </div>
 
       {#if screenshotFile}
-        <div class="file-meta">
-          <strong>{screenshotFile.name}</strong>
-          <span>{detectedTarget ? formatTarget(detectedTarget) : '해상도 확인 중'}</span>
+        <div style="display: flex; gap: 8px; align-items: baseline;">
+          <strong class="text-caption-large color-primary">{screenshotFile.name}</strong>
+          <span class="text-caption color-tertiary">{detectedTarget ? formatTarget(detectedTarget) : '해상도 확인 중'}</span>
         </div>
       {/if}
 
-      <div class="dual-field">
-        <label class="field">
-          <span>가로 해상도</span>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px;">
+        <div class="input-group">
+          <span class="input-label">가로 해상도</span>
           <input
             type="number"
+            class="input-field"
             min="1"
             max={MAX_TARGET_DIMENSION}
             step="1"
@@ -298,12 +291,12 @@
             aria-label="가로 해상도"
             oninput={markDirty}
           />
-        </label>
-
-        <label class="field">
-          <span>세로 해상도</span>
+        </div>
+        <div class="input-group">
+          <span class="input-label">세로 해상도</span>
           <input
             type="number"
+            class="input-field"
             min="1"
             max={MAX_TARGET_DIMENSION}
             step="1"
@@ -311,143 +304,121 @@
             aria-label="세로 해상도"
             oninput={markDirty}
           />
-        </label>
+        </div>
       </div>
 
-      <div class="status-note">
-        <strong>현재 목표:</strong> {formatTarget(activeTarget)}
+      <div style="margin-bottom: 8px;">
+        <span class="text-caption color-primary"><strong>현재 목표:</strong> {formatTarget(activeTarget)}</span>
       </div>
 
-      <div class="field-group">
-        <span class="field-title">레터박스 배경</span>
-        <div class="segmented">
+      <div class="input-group">
+        <span class="input-label">레터박스 배경</span>
+        <div class="segmented-control">
           <label>
-            <input
-              type="radio"
-              name="fill-mode"
-              value="blur"
-              bind:group={fillMode}
-              onchange={markDirty}
-            />
+            <input type="radio" value="blur" bind:group={fillMode} onchange={markDirty} />
             <span>블러</span>
           </label>
           <label>
-            <input
-              type="radio"
-              name="fill-mode"
-              value="black"
-              bind:group={fillMode}
-              onchange={markDirty}
-            />
+            <input type="radio" value="black" bind:group={fillMode} onchange={markDirty} />
             <span>검은색</span>
           </label>
           <label>
-            <input
-              type="radio"
-              name="fill-mode"
-              value="color"
-              bind:group={fillMode}
-              onchange={markDirty}
-            />
+            <input type="radio" value="color" bind:group={fillMode} onchange={markDirty} />
             <span>단색</span>
           </label>
         </div>
       </div>
 
       {#if fillMode === 'color'}
-        <label class="field color-field">
-          <span>배경 색상</span>
-          <input type="color" bind:value={fillColor} aria-label="배경 색상" onchange={markDirty} />
-        </label>
+        <div class="input-group">
+          <span class="input-label">배경 색상</span>
+          <input 
+            type="color" 
+            class="input-field" 
+            style="padding: 2px; height: 38px;" 
+            bind:value={fillColor} 
+            aria-label="배경 색상" 
+            onchange={markDirty} 
+          />
+        </div>
       {/if}
 
-      <div class="field-group">
-        <span class="field-title">출력 포맷</span>
-        <div class="segmented">
+      <div class="input-group" style="margin-top: 8px;">
+        <span class="input-label">출력 포맷</span>
+        <div class="segmented-control">
           <label>
-            <input
-              type="radio"
-              name="export-format"
-              value="jpeg"
-              bind:group={exportFormat}
-              onchange={markDirty}
-            />
+            <input type="radio" value="jpeg" bind:group={exportFormat} onchange={markDirty} />
             <span>JPEG</span>
           </label>
           <label>
-            <input
-              type="radio"
-              name="export-format"
-              value="png"
-              bind:group={exportFormat}
-              onchange={markDirty}
-            />
+            <input type="radio" value="png" bind:group={exportFormat} onchange={markDirty} />
             <span>PNG</span>
           </label>
         </div>
       </div>
 
       {#if exportFormat === 'jpeg'}
-        <label class="field">
-          <span>JPEG 품질 {jpegQuality}%</span>
-          <input
-            type="range"
-            min="1"
-            max="100"
-            step="1"
-            bind:value={jpegQuality}
-            aria-label="JPEG 품질"
-            oninput={markDirty}
+        <div class="input-group">
+          <span class="input-label" style="display: flex; justify-content: space-between;">
+            <span>JPEG 품질</span>
+            <span>{jpegQuality}%</span>
+          </span>
+          <input 
+            type="range" 
+            min="1" 
+            max="100" 
+            step="1" 
+            bind:value={jpegQuality} 
+            aria-label="JPEG 품질" 
+            oninput={markDirty} 
           />
-        </label>
+        </div>
       {/if}
 
-      <button class="primary" type="button" onclick={generateWallpaper} disabled={!canGenerate}>
+      <button class="btn btn-primary" style="margin-top: 16px;" type="button" onclick={generateWallpaper} disabled={!canGenerate}>
         {isProcessing ? '생성 중…' : '생성'}
       </button>
     </section>
 
-    <section class="result-panel" aria-labelledby="result-title">
+    <!-- Result Panel -->
+    <section class="panel surface-level-2" aria-labelledby="result-title">
       <div class="panel-header">
-        <p class="eyebrow">Output</p>
-        <h2 id="result-title">결과</h2>
-        <p>남는 공간만 레터박스로 채워집니다.</p>
+        <span class="text-micro color-quaternary text-uppercase" style="letter-spacing: 1px;">Output</span>
+        <h2 id="result-title" class="text-h2 color-primary">결과</h2>
       </div>
 
-      <div class="status-stack" aria-live="polite">
-        <p class="status">{statusMessage}</p>
+      <div class="status-stack" aria-live="polite" style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+        <div class="status-pill status-normal">{statusMessage}</div>
         {#if errorMessage}
-          <p class="error">{errorMessage}</p>
+          <div class="status-pill status-error">{errorMessage}</div>
+        {/if}
+      </div>
+
+      <div class="media-preview-container surface-inset" style="flex: 1; min-height: 480px; display: flex; flex-direction: column;">
+        {#if result}
+          <img src={result.previewUrl} alt="생성된 배경화면 미리보기" style="margin: auto;" />
+        {:else}
+          <div class="empty-state-box" style="flex: 1;">
+            <img src={iconUrl} class="empty-state-icon" alt="" />
+            <p class="text-body-medium color-secondary" style="margin-top: 16px;">아직 생성된 이미지가 없습니다.</p>
+            <span class="text-caption color-quaternary">원본 사진과 목표 해상도를 준비한 뒤 생성하세요.</span>
+          </div>
         {/if}
       </div>
 
       {#if result}
-        <div class="media-frame result-card">
-          <img src={result.previewUrl} alt="생성된 배경화면 미리보기" />
-        </div>
-
-        <div class="result-meta">
-          <strong>{result.width} × {result.height}px</strong>
-          <span>{result.mimeType === 'image/jpeg' ? 'JPEG' : 'PNG'}</span>
-          <span>{formatBytes(result.blob.size)}</span>
-        </div>
-      {:else}
-        <div class="empty-state">
-          <img src={iconUrl} alt="" />
-          <p>아직 생성된 이미지가 없습니다.</p>
-          <span>원본 사진과 목표 해상도를 준비한 뒤 생성하세요.</span>
+        <div style="display: flex; gap: 12px; align-items: baseline; justify-content: center; margin-top: 16px;">
+          <strong class="text-label color-primary">{result.width} × {result.height}px</strong>
+          <span class="pill-neutral">{result.mimeType === 'image/jpeg' ? 'JPEG' : 'PNG'}</span>
+          <span class="pill-neutral">{formatBytes(result.blob.size)}</span>
         </div>
       {/if}
 
-      <button class="download-action" type="button" onclick={handleDownload} disabled={!canDownload}>
+      <button class="btn btn-ghost" style="margin-top: 16px;" type="button" onclick={handleDownload} disabled={!canDownload}>
         다운로드
       </button>
     </section>
   </div>
 
-  <div class="hint-list">
-    <p>iOS Safari에서는 다운로드 후 사진 앱에 저장해 배경화면으로 지정하세요.</p>
-    <p>HEIC 변환이 실패하면 사진 앱이나 파일 앱에서 JPEG/PNG로 내보낸 뒤 다시 시도하세요.</p>
-    <p>설치 후에는 네트워크 없이도 앱을 다시 열 수 있습니다.</p>
-  </div>
+
 </main>
