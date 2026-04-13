@@ -1,8 +1,4 @@
-# AGETNS.md
-
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
-
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+# AGENTS.md
 
 ## 1. Think Before Coding
 
@@ -75,3 +71,100 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 You are on macOS and zsh.
 You should always use pnpm instead of npm.
+
+### Git instructions
+
+- Git is safety-critical. Read first, mutate second.
+- Before making changes, check repo state with the smallest useful read-only command, usually `git status --short`.
+- Never overwrite, discard, or clean changes you did not make.
+- Do not modify, stage, or revert unrelated files.
+- Do not create branches, commits, tags, or pull requests unless the user asks.
+- Do not run destructive commands unless the user explicitly asks for that exact outcome.
+
+Destructive commands include:
+
+- `git reset --hard`
+- `git checkout -- <path>`
+- `git restore --source ... --worktree --staged`
+- `git clean -fd`
+- `git clean -fdx`
+- `git stash drop`
+- `git stash clear`
+- `git commit --amend`
+- `git rebase`
+- force-push or any history rewrite
+
+When asked to commit:
+
+- Review the diff first.
+- Stage only task-related files.
+- Keep the commit scoped to one logical change.
+- Follow Conventional Commits.
+
+Commit message format:
+
+- `<type>(<scope>): <summary>`
+- scope is optional
+
+Examples:
+
+- `feat(auth): add magic link login`
+- `fix(api): handle empty response`
+- `docs(readme): clarify setup steps`
+- `refactor(parser): simplify token flow`
+- `test(cache): cover ttl expiry`
+- `chore(ci): update pnpm version`
+
+Allowed types:
+
+- `feat`
+- `fix`
+- `docs`
+- `refactor`
+- `test`
+- `chore`
+- `build`
+- `ci`
+- `perf`
+- `revert`
+
+Commit message rules:
+
+- Use imperative mood.
+- Keep it concise and specific.
+- Do not mix unrelated changes into one commit.
+
+### MCP instructions
+
+- Use this section to paste MCP-specific instructions verbatim.
+- Keep each MCP in its own subsection.
+- Add or remove subsections as MCPs change.
+- Do not rewrite or summarize an MCP block unless explicitly asked.
+
+```markdown
+# Svelte MCP
+
+You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+
+## Available Svelte MCP Tools:
+
+### 1. list-sections
+
+Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
+When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
+
+### 2. get-documentation
+
+Retrieves full documentation content for specific sections. Accepts single or multiple sections.
+After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
+
+### 3. svelte-autofixer
+
+Analyzes Svelte code and returns issues and suggestions.
+You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
+
+### 4. playground-link
+
+Generates a Svelte Playground link with the provided code.
+After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+```
