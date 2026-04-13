@@ -1,5 +1,8 @@
 import type { TargetSize } from './types'
 
+export const MAX_TARGET_DIMENSION = 6000
+export const MAX_TARGET_PIXELS = 24_000_000
+
 export interface DrawRect extends TargetSize {
   x: number
   y: number
@@ -36,6 +39,26 @@ export function parseManualTargetSize(
   }
 
   return { width: parsedWidth, height: parsedHeight }
+}
+
+export function getTargetSizeError(target: TargetSize) {
+  if (target.width > MAX_TARGET_DIMENSION || target.height > MAX_TARGET_DIMENSION) {
+    return `목표 해상도는 한 변 ${MAX_TARGET_DIMENSION}px 이하로 입력하세요.`
+  }
+
+  if (target.width * target.height > MAX_TARGET_PIXELS) {
+    return '목표 해상도는 24MP 이하로 입력하세요.'
+  }
+
+  return ''
+}
+
+export function assertSupportedTargetSize(target: TargetSize) {
+  const errorMessage = getTargetSizeError(target)
+
+  if (errorMessage) {
+    throw new Error(errorMessage)
+  }
 }
 
 export function getContainRect(source: TargetSize, target: TargetSize): DrawRect {

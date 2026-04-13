@@ -12,7 +12,12 @@
     renderWallpaper,
     resolveTargetSize,
   } from '$lib/wallpaper/image'
-  import { hasPartialManualTarget, parseManualTargetSize } from '$lib/wallpaper/geometry'
+  import {
+    MAX_TARGET_DIMENSION,
+    getTargetSizeError,
+    hasPartialManualTarget,
+    parseManualTargetSize,
+  } from '$lib/wallpaper/geometry'
   import type { FillMode, ExportFormat, ProcessResult, TargetSize } from '$lib/wallpaper/types'
 
   let sourceFile = $state<File | null>(null)
@@ -31,9 +36,11 @@
   let statusMessage = $state('원본 사진을 넣고 목표 해상도를 정하면 바로 생성할 수 있습니다.')
   let isProcessing = $state(false)
 
+  let hasManualTargetInput = $derived(hasPartialManualTarget(manualWidth, manualHeight))
   let manualTarget = $derived(parseManualTargetSize(manualWidth, manualHeight))
-  let activeTarget = $derived(manualTarget ?? detectedTarget)
-  let canGenerate = $derived(Boolean(sourceFile && activeTarget && !isProcessing))
+  let activeTarget = $derived(manualTarget ?? (hasManualTargetInput ? null : detectedTarget))
+  let activeTargetError = $derived(activeTarget ? getTargetSizeError(activeTarget) : '')
+  let canGenerate = $derived(Boolean(sourceFile && activeTarget && !activeTargetError && !isProcessing))
   let canDownload = $derived(Boolean(result && !isProcessing))
 
   function replacePreviewUrl(currentUrl: string | null, file: File | null) {
@@ -78,7 +85,7 @@
   }
 
   function isInvalidManualTarget() {
-    return hasPartialManualTarget(manualWidth, manualHeight) && !manualTarget
+    return hasManualTargetInput && !manualTarget
   }
 
   async function handleSourceChange(event: Event) {
@@ -100,7 +107,14 @@
     }
 
     try {
-      detectedTarget = await readImageSize(screenshotFile)
+      const screenshotTarget = await readImageSize(screenshotFile)
+      const targetError = getTargetSizeError(screenshotTarget)
+
+      if (targetError) {
+        throw new Error(targetError)
+      }
+
+      detectedTarget = screenshotTarget
 
       if (manualWidth === undefined && manualHeight === undefined) {
         manualWidth = detectedTarget.width
@@ -127,6 +141,11 @@
 
     if (isInvalidManualTarget()) {
       errorMessage = '수동 해상도는 가로와 세로를 모두 양의 정수로 입력해야 합니다.'
+      return
+    }
+
+    if (activeTargetError) {
+      errorMessage = activeTargetError
       return
     }
 
@@ -257,6 +276,7 @@
           <input
             type="number"
             min="1"
+            max={MAX_TARGET_DIMENSION}
             step="1"
             bind:value={manualWidth}
             aria-label="가로 해상도"
@@ -269,6 +289,7 @@
           <input
             type="number"
             min="1"
+            max={MAX_TARGET_DIMENSION}
             step="1"
             bind:value={manualHeight}
             aria-label="세로 해상도"

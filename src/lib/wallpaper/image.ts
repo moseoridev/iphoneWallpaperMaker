@@ -1,7 +1,8 @@
 import { blurImageData } from '@kayahr/stackblur'
 import picaFactory from 'pica'
 
-import { getContainRect, getCoverRect } from './geometry'
+import type { DrawRect } from './geometry'
+import { assertSupportedTargetSize, getContainRect } from './geometry'
 import type {
   ExportFormat,
   LoadedImageSource,
@@ -11,6 +12,14 @@ import type {
 } from './types'
 
 let picaInstance: ReturnType<typeof picaFactory> | null = null
+
+interface RgbColor {
+  r: number
+  g: number
+  b: number
+}
+
+type LetterboxAxis = 'horizontal' | 'vertical' | 'none'
 
 function getPica() {
   picaInstance ??= picaFactory()
@@ -107,8 +116,12 @@ async function canvasToBlob(canvas: HTMLCanvasElement, mimeType: string, quality
   })
 }
 
-function getBlurRadius(targetSize: TargetSize) {
-  return Math.min(140, Math.max(24, Math.round(Math.min(targetSize.width, targetSize.height) / 22)))
+function getEdgeSampleSize(source: TargetSize) {
+  return Math.min(120, Math.max(24, Math.round(Math.min(source.width, source.height) * 0.12)))
+}
+
+function getEdgeBlurRadius(gap: number) {
+  return Math.min(36, Math.max(8, Math.round(gap / 5)))
 }
 
 function getOutputMimeType(format: ExportFormat) {
@@ -119,17 +132,254 @@ function getOutputFileExtension(format: ExportFormat) {
   return format === 'png' ? 'png' : 'jpg'
 }
 
-async function renderBlurBackground(
-  source: LoadedImageSource,
+export function getLetterboxAxis(containRect: DrawRect, targetSize: TargetSize): LetterboxAxis {
+  const verticalGap = containRect.y + (targetSize.height - containRect.y - containRect.height)
+  const horizontalGap = containRect.x + (targetSize.width - containRect.x - containRect.width)
+
+  if (verticalGap <= 0 && horizontalGap <= 0) {
+    return 'none'
+  }
+
+  return verticalGap >= horizontalGap ? 'vertical' : 'horizontal'
+}
+
+export function getAverageColor(data: Uint8ClampedArray): RgbColor {
+  let red = 0
+  let green = 0
+  let blue = 0
+  let weight = 0
+
+  for (let index = 0; index < data.length; index += 4) {
+    const alpha = data[index + 3] / 255
+
+    if (alpha <= 0) {
+      continue
+    }
+
+    red += data[index] * alpha
+    green += data[index + 1] * alpha
+    blue += data[index + 2] * alpha
+    weight += alpha
+  }
+
+  if (!weight) {
+    return { r: 22, g: 22, b: 22 }
+  }
+
+  return {
+    r: Math.round(red / weight),
+    g: Math.round(green / weight),
+    b: Math.round(blue / weight),
+  }
+}
+
+function toRgb(color: RgbColor) {
+  return `rgb(${color.r}, ${color.g}, ${color.b})`
+}
+
+function mixColors(start: RgbColor, end: RgbColor, amount: number): RgbColor {
+  const weight = Math.min(1, Math.max(0, amount))
+
+  return {
+    r: Math.round(start.r + (end.r - start.r) * weight),
+    g: Math.round(start.g + (end.g - start.g) * weight),
+    b: Math.round(start.b + (end.b - start.b) * weight),
+  }
+}
+
+function getAverageCanvasRegionColor(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  return getAverageColor(context.getImageData(x, y, width, height).data)
+}
+
+function blurRegion(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  if (width <= 0 || height <= 0) {
+    return
+  }
+
+  const imageData = context.getImageData(x, y, width, height)
+  blurImageData(imageData, radius, false)
+  context.putImageData(imageData, x, y)
+}
+
+function renderVerticalEdgeBlend(
+  sourceCanvas: HTMLCanvasElement,
+  containRect: DrawRect,
   targetSize: TargetSize,
   context: CanvasRenderingContext2D,
 ) {
-  const coverRect = getCoverRect(source, targetSize)
-  context.drawImage(source.image, coverRect.x, coverRect.y, coverRect.width, coverRect.height)
+  const topGap = containRect.y
+  const bottomGap = targetSize.height - containRect.y - containRect.height
+  const sourceContext = getContext(sourceCanvas)
+  const sampleSize = Math.min(sourceCanvas.height, getEdgeSampleSize(sourceCanvas))
+  const innerOffset = Math.max(0, Math.min(sourceCanvas.height - sampleSize, Math.round(sampleSize * 1.25)))
+  const topOuterColor = getAverageCanvasRegionColor(sourceContext, 0, 0, sourceCanvas.width, sampleSize)
+  const topInnerColor = getAverageCanvasRegionColor(
+    sourceContext,
+    0,
+    innerOffset,
+    sourceCanvas.width,
+    sampleSize,
+  )
+  const bottomOuterColor = getAverageCanvasRegionColor(
+    sourceContext,
+    0,
+    sourceCanvas.height - sampleSize,
+    sourceCanvas.width,
+    sampleSize,
+  )
+  const bottomInnerColor = getAverageCanvasRegionColor(
+    sourceContext,
+    0,
+    Math.max(0, sourceCanvas.height - sampleSize - innerOffset),
+    sourceCanvas.width,
+    sampleSize,
+  )
+  const middleGradient = context.createLinearGradient(0, 0, 0, targetSize.height)
 
-  const imageData = context.getImageData(0, 0, targetSize.width, targetSize.height)
-  blurImageData(imageData, getBlurRadius(targetSize), false)
-  context.putImageData(imageData, 0, 0)
+  middleGradient.addColorStop(0, toRgb(mixColors(topOuterColor, topInnerColor, 0.72)))
+  middleGradient.addColorStop(1, toRgb(mixColors(bottomOuterColor, bottomInnerColor, 0.72)))
+  context.fillStyle = middleGradient
+  context.fillRect(0, 0, targetSize.width, targetSize.height)
+
+  if (topGap > 0) {
+    const topGradient = context.createLinearGradient(0, 0, 0, topGap)
+
+    topGradient.addColorStop(0, toRgb(topOuterColor))
+    topGradient.addColorStop(1, toRgb(mixColors(topOuterColor, topInnerColor, 0.84)))
+    context.fillStyle = topGradient
+    context.fillRect(0, 0, targetSize.width, topGap)
+    blurRegion(context, 0, 0, targetSize.width, topGap, getEdgeBlurRadius(topGap))
+  }
+
+  if (bottomGap > 0) {
+    const bottomGradient = context.createLinearGradient(
+      0,
+      targetSize.height - bottomGap,
+      0,
+      targetSize.height,
+    )
+
+    bottomGradient.addColorStop(0, toRgb(mixColors(bottomOuterColor, bottomInnerColor, 0.84)))
+    bottomGradient.addColorStop(1, toRgb(bottomOuterColor))
+    context.fillStyle = bottomGradient
+    context.fillRect(0, targetSize.height - bottomGap, targetSize.width, bottomGap)
+    blurRegion(
+      context,
+      0,
+      targetSize.height - bottomGap,
+      targetSize.width,
+      bottomGap,
+      getEdgeBlurRadius(bottomGap),
+    )
+  }
+}
+
+function renderHorizontalEdgeBlend(
+  sourceCanvas: HTMLCanvasElement,
+  containRect: DrawRect,
+  targetSize: TargetSize,
+  context: CanvasRenderingContext2D,
+) {
+  const leftGap = containRect.x
+  const rightGap = targetSize.width - containRect.x - containRect.width
+  const sourceContext = getContext(sourceCanvas)
+  const sampleSize = Math.min(sourceCanvas.width, getEdgeSampleSize(sourceCanvas))
+  const innerOffset = Math.max(0, Math.min(sourceCanvas.width - sampleSize, Math.round(sampleSize * 1.25)))
+  const leftOuterColor = getAverageCanvasRegionColor(sourceContext, 0, 0, sampleSize, sourceCanvas.height)
+  const leftInnerColor = getAverageCanvasRegionColor(
+    sourceContext,
+    innerOffset,
+    0,
+    sampleSize,
+    sourceCanvas.height,
+  )
+  const rightOuterColor = getAverageCanvasRegionColor(
+    sourceContext,
+    sourceCanvas.width - sampleSize,
+    0,
+    sampleSize,
+    sourceCanvas.height,
+  )
+  const rightInnerColor = getAverageCanvasRegionColor(
+    sourceContext,
+    Math.max(0, sourceCanvas.width - sampleSize - innerOffset),
+    0,
+    sampleSize,
+    sourceCanvas.height,
+  )
+  const middleGradient = context.createLinearGradient(0, 0, targetSize.width, 0)
+
+  middleGradient.addColorStop(0, toRgb(mixColors(leftOuterColor, leftInnerColor, 0.72)))
+  middleGradient.addColorStop(1, toRgb(mixColors(rightOuterColor, rightInnerColor, 0.72)))
+  context.fillStyle = middleGradient
+  context.fillRect(0, 0, targetSize.width, targetSize.height)
+
+  if (leftGap > 0) {
+    const leftGradient = context.createLinearGradient(0, 0, leftGap, 0)
+
+    leftGradient.addColorStop(0, toRgb(leftOuterColor))
+    leftGradient.addColorStop(1, toRgb(mixColors(leftOuterColor, leftInnerColor, 0.84)))
+    context.fillStyle = leftGradient
+    context.fillRect(0, 0, leftGap, targetSize.height)
+    blurRegion(context, 0, 0, leftGap, targetSize.height, getEdgeBlurRadius(leftGap))
+  }
+
+  if (rightGap > 0) {
+    const rightGradient = context.createLinearGradient(
+      targetSize.width - rightGap,
+      0,
+      targetSize.width,
+      0,
+    )
+
+    rightGradient.addColorStop(0, toRgb(mixColors(rightOuterColor, rightInnerColor, 0.84)))
+    rightGradient.addColorStop(1, toRgb(rightOuterColor))
+    context.fillStyle = rightGradient
+    context.fillRect(targetSize.width - rightGap, 0, rightGap, targetSize.height)
+    blurRegion(
+      context,
+      targetSize.width - rightGap,
+      0,
+      rightGap,
+      targetSize.height,
+      getEdgeBlurRadius(rightGap),
+    )
+  }
+}
+
+function renderBlurBackground(
+  sourceCanvas: HTMLCanvasElement,
+  containRect: DrawRect,
+  targetSize: TargetSize,
+  context: CanvasRenderingContext2D,
+) {
+  const axis = getLetterboxAxis(containRect, targetSize)
+
+  if (axis === 'vertical') {
+    renderVerticalEdgeBlend(sourceCanvas, containRect, targetSize, context)
+    return
+  }
+
+  if (axis === 'horizontal') {
+    renderHorizontalEdgeBlend(sourceCanvas, containRect, targetSize, context)
+    return
+  }
+
+  context.fillStyle = '#161616'
+  context.fillRect(0, 0, targetSize.width, targetSize.height)
 }
 
 export async function readImageSize(file: File) {
@@ -147,11 +397,14 @@ export async function readImageSize(file: File) {
 
 export async function resolveTargetSize(manualSize: TargetSize | null, screenshotFile?: File) {
   if (manualSize) {
+    assertSupportedTargetSize(manualSize)
     return manualSize
   }
 
   if (screenshotFile) {
-    return await readImageSize(screenshotFile)
+    const targetSize = await readImageSize(screenshotFile)
+    assertSupportedTargetSize(targetSize)
+    return targetSize
   }
 
   throw new Error('목표 해상도를 입력하거나 스크린샷을 선택하세요.')
@@ -175,19 +428,21 @@ export async function renderWallpaper(
   options: ProcessOptions,
 ): Promise<ProcessResult> {
   const { targetSize } = options
+  assertSupportedTargetSize(targetSize)
+
   const canvas = createCanvas(targetSize.width, targetSize.height)
   const context = getContext(canvas)
+  const containRect = getContainRect(source, targetSize)
+  const foregroundCanvas = createCanvas(containRect.width, containRect.height)
+  await getPica().resize(source.image, foregroundCanvas)
 
   if (options.fillMode === 'blur') {
-    await renderBlurBackground(source, targetSize, context)
+    renderBlurBackground(foregroundCanvas, containRect, targetSize, context)
   } else {
     context.fillStyle = options.fillMode === 'color' ? options.fillColor ?? '#161616' : '#000000'
     context.fillRect(0, 0, targetSize.width, targetSize.height)
   }
 
-  const containRect = getContainRect(source, targetSize)
-  const foregroundCanvas = createCanvas(containRect.width, containRect.height)
-  await getPica().resize(source.image, foregroundCanvas)
   context.drawImage(foregroundCanvas, containRect.x, containRect.y, containRect.width, containRect.height)
 
   const mimeType = getOutputMimeType(options.exportFormat)

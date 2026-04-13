@@ -84,6 +84,29 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '생성' })).toBeEnabled()
   })
 
+  it('keeps generation disabled when manual resolution is partially cleared', async () => {
+    render(App)
+
+    await fireEvent.change(screen.getByLabelText('원본 사진'), {
+      target: {
+        files: [new File(['source'], 'source.jpg', { type: 'image/jpeg' })],
+      },
+    })
+    await fireEvent.change(screen.getByLabelText('해상도 확인용 스크린샷'), {
+      target: {
+        files: [new File(['screen'], 'screen.png', { type: 'image/png' })],
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '생성' })).toBeEnabled()
+    })
+
+    await fireEvent.input(screen.getByLabelText('가로 해상도'), { target: { value: '' } })
+
+    expect(screen.getByRole('button', { name: '생성' })).toBeDisabled()
+  })
+
   it('keeps download disabled until a result exists and enables it after rendering', async () => {
     render(App)
 
