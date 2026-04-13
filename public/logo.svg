@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img">
+  <title>Logo Silhouette</title>
+  <rect x="138" y="92" width="236" height="328" rx="42" fill="none" stroke="#ffffff" stroke-width="32" />
+  <rect x="176" y="112" width="160" height="20" rx="10" fill="#ffffff" />
+  <path d="M188 256h136" stroke="#ffffff" stroke-width="24" stroke-linecap="round" />
+  <path d="M256 188v136" stroke="#ffffff" stroke-width="24" stroke-linecap="round" />
+</svg>

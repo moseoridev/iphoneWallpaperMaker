@@ -577,7 +577,6 @@ input[type="color"].input-field::-moz-color-swatch {
   width: 17px;
   height: 48px;
   object-fit: contain;
-  filter: brightness(10);
 }
 
 /* --- Workspace Grid --- */

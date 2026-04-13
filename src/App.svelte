@@ -21,6 +21,7 @@
   import type { FillMode, ExportFormat, ProcessResult, TargetSize } from '$lib/wallpaper/types'
 
   const iconUrl = `${import.meta.env.BASE_URL}icon.svg`
+  const logoUrl = `${import.meta.env.BASE_URL}logo.svg`
 
   let sourceFile = $state<File | null>(null)
   let screenshotFile = $state<File | null>(null)
@@ -257,7 +258,7 @@
 <main class="layout-container">
   <header class="topbar">
     <div class="logo-group">
-      <img class="logo-icon" src={iconUrl} alt="Logo" />
+      <img class="logo-icon" src={logoUrl} alt="Logo" />
       <span class="text-micro" style="color: var(--nav-text);">Wallpaper Maker</span>
     </div>
     <div style="display: flex; align-items: center; gap: 11px;">
