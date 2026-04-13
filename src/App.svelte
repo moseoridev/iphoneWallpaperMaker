@@ -385,7 +385,7 @@
           <input 
             type="color" 
             class="input-field" 
-            style="padding: 2px; height: 38px;" 
+            style="padding: 2px; height: 44px;" 
             bind:value={fillColor} 
             aria-label="배경 색상" 
             onchange={markDirty} 
