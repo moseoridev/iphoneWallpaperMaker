@@ -31,7 +31,7 @@
   let manualHeight = $state<number | undefined>(undefined)
   let fillMode = $state<FillMode>('blur')
   let fillColor = $state('#161616')
-  let exportFormat = $state<ExportFormat>('jpeg')
+  let exportFormat = $state<ExportFormat>('png')
   let jpegQuality = $state(92)
   let result = $state<ProcessResult | null>(null)
   let errorMessage = $state('')
