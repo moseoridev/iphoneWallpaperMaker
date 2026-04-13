@@ -53,11 +53,28 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        globIgnores: ['**/assets/heic-to-*.js'],
         navigateFallback: 'index.html',
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: /\/assets\/heic-to-.*\.js$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'heic-converter',
+              expiration: {
+                maxEntries: 2,
+                maxAgeSeconds: 365 * 24 * 60 * 60,
+              },
+            },
+          },
+        ],
       },
     }),
   ],
+  build: {
+    chunkSizeWarningLimit: 3000,
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
