@@ -96,7 +96,7 @@
     --seg-bg: rgba(255, 255, 255, 0.06);
     --seg-active-bg: rgba(255, 255, 255, 0.12);
     --seg-active-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px;
-    --seg-text: rgba(255, 255, 255, 0.48);
+    --seg-text: rgba(255, 255, 255, 0.6);
     --seg-active-text: #ffffff;
 
     --toggle-icon: '🌙';
@@ -133,7 +133,7 @@
   --seg-bg: rgba(255, 255, 255, 0.06);
   --seg-active-bg: rgba(255, 255, 255, 0.12);
   --seg-active-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px;
-  --seg-text: rgba(255, 255, 255, 0.48);
+  --seg-text: rgba(255, 255, 255, 0.6);
   --seg-active-text: #ffffff;
 
   --toggle-icon: '🌙';
