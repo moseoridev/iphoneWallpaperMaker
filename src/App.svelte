@@ -305,7 +305,7 @@
         {:else}
           <div class="empty-state-box">
             <img src={iconUrl} class="empty-state-icon" alt="" />
-            <span class="text-small color-tertiary">Source image</span>
+            <span class="text-caption color-tertiary">Source image</span>
           </div>
         {/if}
       </div>

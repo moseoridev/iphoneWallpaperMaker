@@ -335,7 +335,7 @@ button, input, select, textarea {
 }
 
 .btn:disabled {
-  opacity: 0.42;
+  opacity: 0.48;
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -403,6 +403,7 @@ button, input, select, textarea {
   font-size: 12px;
   font-weight: 400;
   letter-spacing: -0.12px;
+  line-height: 1.33;
 }
 
 .badge-subtle {
@@ -415,6 +416,7 @@ button, input, select, textarea {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: -0.12px;
+  line-height: 1.33;
 }
 
 .pill-success {
@@ -442,6 +444,7 @@ button, input, select, textarea {
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: -0.224px;
+  line-height: 1.29;
 }
 
 .input-field {
@@ -449,7 +452,7 @@ button, input, select, textarea {
   color: var(--input-text);
   border: 1px solid var(--input-border);
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 11px;
   font-size: 17px;
   font-weight: 400;
   letter-spacing: -0.374px;
@@ -605,7 +608,7 @@ button, input, select, textarea {
 /* --- Media Preview --- */
 .media-preview-container {
   width: 100%;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   align-items: center;
